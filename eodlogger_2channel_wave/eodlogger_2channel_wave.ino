@@ -12,7 +12,7 @@
 // Default settings: -----------------------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-uint32_t samplingRate = 50000; // samples per second and channel in Hertz
+uint32_t samplingRate = 100000; // samples per second and channel in Hertz
 int8_t channel0 = A2;           // input pin for ADC0
 int8_t channel1 = A16;          // input pin for ADC1
 int bits = 12;                  // resolution: 10bit 12bit, or 16bit
@@ -64,7 +64,7 @@ void openNextFile() {
   file.writeData();
   Serial.println(name);
   if (file.isOpen()) {
-    blink.set(5000, 5);
+    blink.set(5000, 200);
     blink.blink(2000, 1000);
   }
   else {
@@ -109,7 +109,7 @@ void storeData() {
 void setup() {
   blink.switchOn();
   Serial.begin(9600);
-  while (!Serial && millis() < 2000) {};
+  while (!Serial && millis() < 5000) {};
   rtclock.check();
   setupADC();
   config.setConfigFile("logger.cfg");
@@ -121,6 +121,7 @@ void setup() {
   aidata.start();
   Serial.println();
   aidata.report();
+  rtclock.report();
 }
 
 
