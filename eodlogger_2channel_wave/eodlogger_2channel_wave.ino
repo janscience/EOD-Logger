@@ -19,7 +19,7 @@ int bits = 12;                  // resolution: 10bit 12bit, or 16bit
 int averaging = 4;              // number of averages per sample: 0, 4, 8, 16, 32
 
 char path[] = "recordings";     // directory where to store files on SD card.
-char fileName[] = "logger1-SDATETIME.wav";   // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+char fileName[] = "logger1-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
 float fileSaveTime = 10*60;     // seconds
 
 int pulseFrequency = 200;       // Hertz
@@ -50,7 +50,8 @@ void setupADC() {
 
 
 void openNextFile() {
-  String name = rtclock.makeStr(settings.FileName, true);
+  time_t t = now();
+  String name = rtclock.makeStr(settings.FileName, t, true);
   name = file.incrementFileName(name);
   if (name.length() == 0) {
     Serial.println("WARNING: failed to open file on SD card.");
@@ -58,10 +59,11 @@ void openNextFile() {
     Serial.println();
     return;
   }
+  name += ".wav";
   char dts[20];
-  rtclock.dateTime(dts);
-  file.openWave(name.c_str(), aidata, -1, dts);
-  file.writeData();
+  rtclock.dateTime(dts, t);
+  file.openWave(name.c_str(), -1, dts);
+  file.write();
   Serial.println(name);
   if (file.isOpen()) {
     blink.set(5000, 200);
@@ -77,16 +79,16 @@ void openNextFile() {
 
 void setupStorage() {
   file.dataDir(settings.Path);
-  file.setWriteInterval(aidata);
+  file.setWriteInterval();
   file.setMaxFileTime(settings.FileTime);
-  file.startWrite();
+  file.start();
   openNextFile();
 }
 
 
 void storeData() {
   if (file.needToWrite()) {
-    size_t samples = file.writeData();
+    size_t samples = file.write();
     if (samples == 0) {
       blink.clear();
       Serial.println();
