@@ -34,7 +34,7 @@ SDCard sdcard;
 SDWriter file(sdcard, aidata);
 Settings settings("recordings", fileName, fileSaveTime, pulseFrequency);
 RTClock rtclock;
-Blink blink;
+Blink blink(LED_BUILTIN);
 
 
 void setupADC() {
