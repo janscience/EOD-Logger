@@ -87,7 +87,7 @@ void setupStorage() {
 
 
 void storeData() {
-  if (file.needToWrite()) {
+  if (file.pending()) {
     size_t samples = file.write();
     if (samples == 0) {
       blink.clear();
