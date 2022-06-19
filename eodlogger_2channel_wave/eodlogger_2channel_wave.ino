@@ -9,7 +9,7 @@
 #include <TestSignals.h>
 
 
-// Default settings: -----------------------------------------------------------------------
+// Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
 uint32_t samplingRate = 100000; // samples per second and channel in Hertz
@@ -26,10 +26,13 @@ int pulseFrequency = 200;       // Hertz
 int signalPins[] = {2, 3, -1};  // pins where to put out test signals
 
 
-// ------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
  
 Configurator config;
-ContinuousADC aidata;
+
+DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
+ContinuousADC aidata(AIBuffer, NAIBuffer);
+
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
 Settings settings("recordings", fileName, fileSaveTime, pulseFrequency);
@@ -163,6 +166,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 5000) {};
   rtclock.check();
+  sdcard.begin();
   setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);

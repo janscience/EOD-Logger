@@ -37,7 +37,10 @@ int signalPins[] = {2, 3, 4, 5, -1};  // pins where to put out test signals
 const char version[4] = "1.0";
 
 Configurator config;
-ContinuousADC aidata;
+
+DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
+ContinuousADC aidata(AIBuffer, NAIBuffer);
+
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
 Settings settings("recordings", fileName, fileSaveTime, pulseFrequency);
