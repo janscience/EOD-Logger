@@ -139,3 +139,10 @@ The on-board LED of the Teensy indicates the following events:
   for the data acquisition are reported and in case of problems an
   error message is displayed.
 
+
+## Assembly
+
+![pinout](eodlogger-teensy3.5-pinout.png)
+
+
+
