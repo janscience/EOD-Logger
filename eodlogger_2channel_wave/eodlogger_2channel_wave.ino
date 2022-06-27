@@ -21,7 +21,7 @@ ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
 ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";     // directory where to store files on SD card.
-char fileName[] = "logger1-SDATETIME.wav"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+char fileName[] = "logger1-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
 float fileSaveTime = 10*60;     // seconds
 
 float initialDelay = 1.0;            // seconds
@@ -69,13 +69,14 @@ String makeFileName() {
     file.resetFileCounter();
     prevname = name;
   }
-  name = file.incrementFileName(name);
+  name = file.incrementFileName(name + ".wav");
   if (name.length() == 0) {
     Serial.println("WARNING: failed to increment file name.");
     Serial.println("SD card probably not inserted.");
     Serial.println();
     return "";
   }
+  name.remove(name.length()-4);
   return name;
 }
 
@@ -84,9 +85,10 @@ bool openNextFile(const String &name) {
   blink.clear();
   if (name.length() == 0)
     return false;
+  String fname = name + ".wav";
   char dts[20];
   rtclock.dateTime(dts);
-  if (! file.openWave(name.c_str(), -1, dts)) {
+  if (! file.openWave(fname.c_str(), -1, dts)) {
     Serial.println();
     Serial.println("WARNING: failed to open file on SD card.");
     Serial.println("SD card probably not inserted or full -> halt");
@@ -95,7 +97,7 @@ bool openNextFile(const String &name) {
     return false;
   }
   file.write();
-  Serial.println(name);
+  Serial.println(fname);
   blink.setSingle();
   blink.blinkSingle(0, 1000);
   return true;
@@ -186,6 +188,7 @@ void setup() {
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
   setupTestSignals(signalPins, settings.PulseFrequency);
+  setupStorage();
   aidata.check();
   aidata.start();
   aidata.report();

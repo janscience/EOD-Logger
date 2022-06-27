@@ -15,7 +15,7 @@
 // Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-uint32_t samplingRate = 44000; // samples per second and channel in Hertz
+uint32_t samplingRate = 44100; // samples per second and channel in Hertz
 int8_t channels0[] = {A2, A3, -1};   // input pins for ADC0
 int8_t channels1[] = {A16, A17, -1}; // input pins for ADC1
 int bits = 12;                 // resolution: 10bit 12bit, or 16bit
@@ -23,10 +23,14 @@ int averaging = 4;             // number of averages per sample: 0, 4, 8, 16, 32
 
 uint8_t tempPin = 25;          // pin for DATA of thermometer
 float sensorsInterval = 10.0;  // interval between sensors readings in seconds
+ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
+ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";    // directory where to store files on SD card.
 char fileName[] = "logger1-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
 float fileSaveTime = 10*60;    // seconds
+
+float initialDelay = 1.0;            // seconds
 
 int pulseFrequency = 200;      // Hertz
 int signalPins[] = {2, 3, 4, 5, -1};  // pins where to put out test signals
@@ -36,6 +40,7 @@ int signalPins[] = {2, 3, 4, 5, -1};  // pins where to put out test signals
  
 const char version[4] = "1.0";
 
+RTClock rtclock;
 Configurator config;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
@@ -43,9 +48,9 @@ ContinuousADC aidata(AIBuffer, NAIBuffer);
 
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
-Settings settings("recordings", fileName, fileSaveTime, pulseFrequency);
+Settings settings("recordings", fileName, fileSaveTime, pulseFrequency,
+                  0.0, initialDelay);
 String prevname; // previous file name
-RTClock rtclock;
 Blink blink(LED_BUILTIN);
 
 ESensors sensors;
@@ -61,8 +66,8 @@ void setupADC() {
   aidata.setRate(samplingRate);
   aidata.setResolution(bits);
   aidata.setAveraging(averaging);
-  aidata.setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED);
-  aidata.setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED);
+  aidata.setConversionSpeed(convs);
+  aidata.setSamplingSpeed(sampls);
   aidata.check();
 }
 
@@ -207,10 +212,10 @@ void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 5000) {};
   rtclock.check();
-  setupADC();
   sdcard.begin();
   rtclock.setFromFile(sdcard);
   rtclock.report();
+  setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
   setupTestSignals(signalPins, settings.PulseFrequency);

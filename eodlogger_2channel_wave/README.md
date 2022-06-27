@@ -9,47 +9,29 @@
 - A configuration file can be used to setup the logger.
 
 
-## Dependencies
+## Dependencies and installation
 
 The logger is based on the following libraries:
 
-- [Arduino Time Library](https://github.com/PaulStoffregen/Time)
-- [ADC](https://github.com/pedvide/ADC)
-- [SdFat version2](https://github.com/greiman/SdFat)
 - [TeeRec](https://github.com/janscience/TeeRec) library.
 
+[TeeRec](https://github.com/janscience/TeeRec) can be installed from
+the library manager of the Arduino IDE.
 
-## Installation
-
-The [Arduino Time Library](https://github.com/PaulStoffregen/Time) and
-[ADC](https://github.com/pedvide/ADC) libraries are already included
-in [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html).
-
-For installing [SdFat version2](https://github.com/greiman/SdFat) open in
-the Arduino IDE Tools - Manage libraries. Search for SdFat and install it.
-
-For [TeeRec](https://github.com/janscience/TeeRec) clone the
-repository in 'Arduino/libraries':
-```sh
-cd Arduino/libraries
-git clone https://github.com/janscience/TeeRec.git
-```
-
-Alternatively, download the whole repository as a zip archive (open
-https://github.com/janscience/TeeRec in your browser and click on the
-green "Code" button). Unpack the zip file:
-```sh
-cd Arduino/libraries
-unzip ~/Downloads/TeeRec-main.zip
-```
-
-Close the Arduino IDE and open it again. Then the Arduino IDE knows
-about the [TeeRec](https://github.com/janscience/TeeRec) library.
+*Note:* you need Arduino 1.8.19 and
+ [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) 1.56 or
+ higher! When [installing
+ Teensyduino](https://www.pjrc.com/teensy/td_download.html) simply
+ select all libraries for installation. In case you still have them
+ from an older version, remove SdFat and Bounce2 from your
+ Arduino/libraries folder, they are now supplied by
+ [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html).
 
 
 ## Setup
 
 Open the `eodlogger_2channel_wave` sketch in the Arduino IDE.
+
 
 ### Real-time clock
 
@@ -100,6 +82,9 @@ the current date, time or a number:
 `fileSaveTime` specifies for how many seconds data should be saved into
 each file. The default is 10min.
 
+`initialDelay` specifies an initial delay right after start up the
+sketch waits before starting to store data on SD card.
+
 Once you modified the sketch to your needs, upload it to the Teensy (`Ctrl-U`).
 
 
@@ -117,7 +102,7 @@ look like this:
 
 Settings:
   Path: recordings       # path where to store data
-  FileName: logger1-SDATETIME  # may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM; the wav extension is added b the sketch.
+  FileName: logger1-SDATETIME  # may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
   FileTime: 10min        # s, min, or h
   PulseFreq: 400Hz       # Hz, kHz, or MHz
 
@@ -135,12 +120,56 @@ ignored, that is empty lines are ignored, but also lines with text
 without colon.  Matching keys and most values is case
 insensitive. Unknown keys are ignored but reported. Times and
 frequencies understand various units as indicated in the
-comments. Check the serial monitor to confirm the right settings.
+comments. Check the serial monitor of the Arduino IDE (`Ctrl+Shif+M`)
+to confirm the right settings.
 
 
-## Usage
+## Real-time clock
 
-Connect the Teensy to a battery and let it record the data.
+For proper naming of files, the real-time clock needs to be set to the
+right time. The easiest way to achieve this, is to compile and upload
+the [`eodlogger_4channel_sensors.ino`](eodlogger_4channel_sensors.ino)
+sketch from the Arduino IDE.
+
+Alternatively, you may copy a file named `settime.cfg` into the root
+folder of the SD card. This file contains a single line with a date
+and a time in the following format:
+``` txt
+YYYY-MM-DDTHH:MM:SS
+```
+
+In a shell you might generate this file via
+``` sh
+date +%FT%T > settime.cfg
+```
+and then edit this file to some time in the near future.
+
+Insert the SD card into the Teensy. Start the Teensy by connecting it
+to power. On start up the
+[`eodlogger_4channel_sensors.ino`](eodlogger_4channel_sensors.ino)
+sketch reads in the `settime.cfg` file, sets the real-time clock to
+this time, and then deletes the file from the SD card to avoid
+resetting the time at the next start up.
+
+
+## Logging
+
+1. *Format the SD card.*
+2. Copy your logger.cfg file onto the SD card.
+3. Insert the SD card into the Teensy.
+4. Connect the Teensy to a battery and let it record the data.
+
+The SD card needs to be *reformatted after every usage* of the
+logger. The logger runs until the battery is drained and therefore
+cannot properly close the last files. This leaves the file system in a
+corrupted state, which apparently results in very long delays when
+writing to the SD card again.
+
+You may use the sketch provided by the SdFat library for formatting
+the SD card directly on the Teensy: In the Arduino IDE menu select
+File - Examples, browse down, select "SdFat" and then
+"SdFormatter". Upload the script on Teensy and open the serial
+monitor. Follow the instructions and do an erase and format.
 
 
 ### LED
@@ -150,6 +179,9 @@ The on-board LED of the Teensy indicates the following events:
 - On startup the LED is switched on during the initialization of the
   data acqusition and SD card. This can last for up to 2 seconds
   (timeout for establishing a serial connection with a computer).
+
+- For the time of the initial delay (nothing is recorded to SD card)
+  a double-blink every 2s is emitted.
 
 - Normal operation, i.e. data acquisition is running and data are
   written to SD card: the LED briefly flashes every 5 seconds.
