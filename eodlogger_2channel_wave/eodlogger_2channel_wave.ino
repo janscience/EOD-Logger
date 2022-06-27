@@ -12,22 +12,29 @@
 // Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-uint32_t samplingRate = 100000; // samples per second and channel in Hertz
+uint32_t samplingRate = 44100;  // samples per second and channel in Hertz
 int8_t channel0 = A2;           // input pin for ADC0
 int8_t channel1 = A16;          // input pin for ADC1
 int bits = 12;                  // resolution: 10bit 12bit, or 16bit
 int averaging = 4;              // number of averages per sample: 0, 4, 8, 16, 32
+ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
+ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";     // directory where to store files on SD card.
-char fileName[] = "logger1-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+char fileName[] = "logger1-SDATETIME.wav"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
 float fileSaveTime = 10*60;     // seconds
+
+float initialDelay = 1.0;            // seconds
 
 int pulseFrequency = 200;       // Hertz
 int signalPins[] = {2, 3, -1};  // pins where to put out test signals
 
 
 // ----------------------------------------------------------------------------
+
+const char version[4] = "2.0";
  
+RTClock rtclock;
 Configurator config;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
@@ -35,9 +42,9 @@ ContinuousADC aidata(AIBuffer, NAIBuffer);
 
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
-Settings settings("recordings", fileName, fileSaveTime, pulseFrequency);
+Settings settings("recordings", fileName, fileSaveTime, pulseFrequency,
+                  0.0, initialDelay);
 String prevname; // previous file name
-RTClock rtclock;
 Blink blink(LED_BUILTIN);
 
 int restarts = 0;
@@ -49,14 +56,13 @@ void setupADC() {
   aidata.setRate(samplingRate);
   aidata.setResolution(bits);
   aidata.setAveraging(averaging);
-  aidata.setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED);
-  aidata.setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED);
+  aidata.setConversionSpeed(convs);
+  aidata.setSamplingSpeed(sampls);
   aidata.check();
 }
 
 
-bool openNextFile() {
-  blink.clear();
+String makeFileName() {
   time_t t = now();
   String name = rtclock.makeStr(settings.FileName, t, true);
   if (name != prevname) {
@@ -66,15 +72,20 @@ bool openNextFile() {
   name = file.incrementFileName(name);
   if (name.length() == 0) {
     Serial.println("WARNING: failed to increment file name.");
-    Serial.println("SD card probably not inserted -> halt");
+    Serial.println("SD card probably not inserted.");
     Serial.println();
-    aidata.stop();
-    while (1) {};
-    return false;
+    return "";
   }
-  name += ".wav";
+  return name;
+}
+
+
+bool openNextFile(const String &name) {
+  blink.clear();
+  if (name.length() == 0)
+    return false;
   char dts[20];
-  rtclock.dateTime(dts, t);
+  rtclock.dateTime(dts);
   if (! file.openWave(name.c_str(), -1, dts)) {
     Serial.println();
     Serial.println("WARNING: failed to open file on SD card.");
@@ -99,8 +110,9 @@ void setupStorage() {
     Serial.printf("Save recorded data in folder \"%s\".\n\n", settings.Path);
   file.setWriteInterval();
   file.setMaxFileTime(settings.FileTime);
-  file.start();
-  openNextFile();
+  char ss[30] = "eodlogger_2channel_wave v";
+  strcat(ss, version);
+  file.setSoftware(ss);
 }
 
 
@@ -141,6 +153,7 @@ void storeData() {
     }
     if (file.endWrite() || samples < 0) {
       file.close();  // file size was set by openWave()
+      String name = makeFileName();
       if (samples < 0) {
         restarts++;
         if (restarts >= 5) {
@@ -153,13 +166,13 @@ void storeData() {
         aidata.start();
         file.start();
       }
-      openNextFile();
+      openNextFile(name);
     }
   }
 }
 
 
-// ------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void setup() {
   blink.switchOn();
@@ -167,17 +180,31 @@ void setup() {
   while (!Serial && millis() < 5000) {};
   rtclock.check();
   sdcard.begin();
+  rtclock.setFromFile(sdcard);
+  rtclock.report();
   setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
   setupTestSignals(signalPins, settings.PulseFrequency);
   aidata.check();
-  blink.switchOff();
-  setupStorage();
   aidata.start();
-  Serial.println();
   aidata.report();
-  rtclock.report();
+  blink.switchOff();
+  if (settings.InitialDelay >= 2.0) {
+    delay(1000);
+    blink.setDouble();
+    blink.delay(uint32_t(1000.0*settings.InitialDelay) - 1000);
+  }
+  else
+    delay(uint32_t(1000.0*settings.InitialDelay));
+  String name = makeFileName();
+  if (name.length() == 0) {
+    Serial.println("-> halt");
+    aidata.stop();
+    while (1) {};
+  }
+  file.start();
+  openNextFile(name);
 }
 
 
