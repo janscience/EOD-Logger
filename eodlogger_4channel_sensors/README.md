@@ -110,8 +110,7 @@ Settings:
   Path: recordings       # path where to store data
   FileName: logger1-SDATETIME  # may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
   FileTime: 10min        # s, min, or h
-  PulseFreq: 400Hz       # Hz, kHz, or MHz
-  InitialDelay   : 10s         # ms, s, or min
+  InitialDelay: 10s      # ms, s, or min
 
 ADC:
   SamplingRate: 44.1kHz  # Hz, kHz, or MHz
@@ -129,6 +128,9 @@ insensitive. Unknown keys are ignored but reported. Times and
 frequencies understand various units as indicated in the
 comments. Check the serial monitor of the Arduino IDE (`Ctrl+Shif+M`)
 to confirm the right settings.
+
+The only relevant parameter might be the `FileName`. Choose for each
+of your loggers a different base name!
 
 
 ## Real-time clock

@@ -93,9 +93,9 @@ Once you modified the sketch to your needs, upload it to the Teensy (`Ctrl-U`).
 Most of the settings described above can be configured via a
 configuration file. Simply place a configuration file named
 `logger.cfg` into the root folder of the SD card. If present, this
-file is read once on startup. You find an example configuration file
-along with the logger sketch in this directory. The content should
-look like this:
+file is read once on startup. You find an [example configuration
+file](logger.cfg) along with the logger sketch in this directory. The
+content should look like this:
 
 ```txt
 # Configuration file for EOD logger.
@@ -104,7 +104,7 @@ Settings:
   Path: recordings       # path where to store data
   FileName: logger1-SDATETIME  # may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
   FileTime: 10min        # s, min, or h
-  PulseFreq: 400Hz       # Hz, kHz, or MHz
+  InitialDelay: 10s      # ms, s, or min
 
 ADC:
   SamplingRate: 44.1kHz  # Hz, kHz, or MHz
@@ -122,6 +122,9 @@ insensitive. Unknown keys are ignored but reported. Times and
 frequencies understand various units as indicated in the
 comments. Check the serial monitor of the Arduino IDE (`Ctrl+Shif+M`)
 to confirm the right settings.
+
+The only relevant parameter might be the `FileName`. Choose for each
+of your loggers a different base name!
 
 
 ## Real-time clock
