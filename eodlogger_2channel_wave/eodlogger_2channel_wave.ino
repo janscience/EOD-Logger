@@ -1,8 +1,8 @@
 #include <Configurator.h>
 #include <ContinuousADC.h>
 #include <SDWriter.h>
-//#include <Wire.h>
-//#include <DS1307RTC.h>
+#include <Wire.h>
+#include <DS1307RTC.h>
 #include <RTClock.h>
 #include <Settings.h>
 #include <Blink.h>
@@ -14,20 +14,20 @@
 
 uint32_t samplingRate = 44100;  // samples per second and channel in Hertz
 int8_t channel0 = A2;           // input pin for ADC0
-int8_t channel1 = A16;          // input pin for ADC1
+int8_t channel1 = A10;          // input pin for ADC1
 int bits = 12;                  // resolution: 10bit 12bit, or 16bit
 int averaging = 4;              // number of averages per sample: 0, 4, 8, 16, 32
 ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
 ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";     // directory where to store files on SD card.
-char fileName[] = "logger1-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-float fileSaveTime = 10*60;     // seconds
+char fileName[] = "logger4-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+float fileSaveTime = 10;     // seconds
 
-float initialDelay = 1.0;            // seconds
+float initialDelay = 10.0;            // seconds
 
 int pulseFrequency = 200;       // Hertz
-int signalPins[] = {2, 3, -1};  // pins where to put out test signals
+//int signalPins[] = {2, 3, -1};  // pins where to put out test signals
 
 
 // ----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void setup() {
   setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
-  setupTestSignals(signalPins, settings.PulseFrequency);
+  //setupTestSignals(signalPins, settings.PulseFrequency);
   setupStorage();
   aidata.check();
   aidata.start();
