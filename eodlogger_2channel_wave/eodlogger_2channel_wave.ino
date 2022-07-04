@@ -1,8 +1,6 @@
 #include <Configurator.h>
 #include <ContinuousADC.h>
 #include <SDWriter.h>
-#include <Wire.h>
-#include <DS1307RTC.h>
 #include <RTClock.h>
 #include <Settings.h>
 #include <Blink.h>
@@ -22,9 +20,9 @@ ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";     // directory where to store files on SD card.
 char fileName[] = "logger4-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-float fileSaveTime = 10;     // seconds
+float fileSaveTime = 10;        // seconds
 
-float initialDelay = 10.0;            // seconds
+float initialDelay = 10.0;      // seconds
 
 int pulseFrequency = 200;       // Hertz
 //int signalPins[] = {2, 3, -1};  // pins where to put out test signals
@@ -179,7 +177,8 @@ void storeData() {
 void setup() {
   blink.switchOn();
   Serial.begin(9600);
-  while (!Serial && millis() < 5000) {};
+  while (!Serial && millis() < 500) {};
+  rtclock.init();
   rtclock.check();
   sdcard.begin();
   rtclock.setFromFile(sdcard);

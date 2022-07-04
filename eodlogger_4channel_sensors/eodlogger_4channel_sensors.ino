@@ -4,8 +4,6 @@
 #include <ESensors.h>
 #include <TemperatureDS18x20.h>
 #include <LightBH1750.h>
-#include <Wire.h>
-#include <DS1307RTC.h>
 #include <RTClock.h>
 #include <Settings.h>
 #include <Blink.h>
@@ -75,8 +73,8 @@ void setupADC() {
 void setupSensors() {
   temp.begin(tempPin);
   temp.setName("water temperature", "Tw");
-  Wire2.begin();
-  light.begin(Wire2);
+  Wire1.begin();
+  light.begin(Wire1);
   light.setAutoRanging();
   sensors.setInterval(sensorsInterval);
   sensors.setPrintTime(ESensors::ISO_TIME);
@@ -210,7 +208,8 @@ void storeData() {
 void setup() {
   blink.switchOn();
   Serial.begin(9600);
-  while (!Serial && millis() < 5000) {};
+  while (!Serial && millis() < 500) {};
+  rtclock.init();
   rtclock.check();
   sdcard.begin();
   rtclock.setFromFile(sdcard);

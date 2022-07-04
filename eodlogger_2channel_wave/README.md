@@ -35,19 +35,15 @@ Open the `eodlogger_2channel_wave` sketch in the Arduino IDE.
 
 ### Real-time clock
 
-By default, the on board real-time clock of the Teensy is used. If you
-want to use a clock provided by an external DS1307RTC instead
-(e.g. the AT24C32 RTC Modul), then uncomment the Wire and DS1307RTC
-include at the top of the sketch so that it looks like this:
-```c
-#include <Configurator.h>
-#include <ContinuousADC.h>
-#include <SDWriter.h>
-#include <Wire.h>
-#include <DS1307RTC.h>
-#include <RTClock.h>
-...
-```
+If an external DS1307RTC is detected it is used as the real time clock
+instead of the on-board one.
+
+The on-board time is set whenever you compile and upload a sketch.
+
+The DS1307RTC needs to set by running, for example, the `SetTime`
+sketch. You find it in File -> Examples -> DS1307RTC -> SetTime. Open
+it and run it.
+
 
 ### Data acquisition
 
