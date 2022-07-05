@@ -4,6 +4,7 @@
 #include <ESensors.h>
 #include <TemperatureDS18x20.h>
 #include <LightBH1750.h>
+#include <SenseBME280.h>
 #include <RTClock.h>
 #include <Settings.h>
 #include <Blink.h>
@@ -54,7 +55,10 @@ Blink blink(LED_BUILTIN);
 ESensors sensors;
 TemperatureDS18x20 temp(&sensors);
 LightBH1750 light(&sensors);
-
+SenseBME280 bme;
+TemperatureBME280 airtemp(&bme, &sensors);
+HumidityBME280 hum(&bme, &sensors);
+PressureBME280 pres(&bme, &sensors);
 int restarts = 0;
 
 
@@ -76,6 +80,10 @@ void setupSensors() {
   Wire1.begin();
   light.begin(Wire1);
   light.setAutoRanging();
+  Wire2.begin();
+  bme.beginI2C(Wire2, 0x77);
+  hum.setPercent();
+  pres.setHecto();
   sensors.setInterval(sensorsInterval);
   sensors.setPrintTime(ESensors::ISO_TIME);
   sensors.report();
