@@ -20,7 +20,7 @@ ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
 char path[] = "recordings";     // directory where to store files on SD card.
 char fileName[] = "logger4-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-float fileSaveTime = 10;        // seconds
+float fileSaveTime = 10*60;     // seconds
 
 float initialDelay = 10.0;      // seconds
 
