@@ -206,6 +206,6 @@ The on-board LED of the Teensy indicates the following events:
 
 ## Assembly
 
-![hardware](images/logger3-hardware.jpg)
+![hardware](images/logger3-hardware.png)
 
 ![pinout](images/eodlogger-teensy3.5-pinout.png)
