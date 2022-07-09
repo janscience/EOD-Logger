@@ -2,14 +2,18 @@
 
 ![logger3](images/logger3.jpg)
 
-- Records from 4 monopolar channels against a common ground, two from each ADC
+- Records from 2x2 monopolar channels against a common ground (banana
+  jack), two from each ADC (A2, A3, A10, A11).
 - Data are saved in wave files together with relevant metadata:
   sampling rate, number of channels and pin IDs, bit resolution,
   data and time, Teensy board version and its unique MAC address.
 - Data acquisition (sampling rate, channels, averaging, etc.) can
   be easily changed.
-- Environmental sensor data (water temperature, light intensity) are
-  also logged onto SD card.
+- Environmental sensor data (water temperature via
+  [DS18x20](https://github.com/janscience/ESensors/blob/main/docs/chips/ds18x20.md),
+  light intensity via
+  [BH1750](https://github.com/janscience/ESensors/blob/main/docs/chips/bh1750.md))
+  are also logged onto SD card.
 - A configuration file can be used to setup the logger.
 
 
@@ -201,5 +205,7 @@ The on-board LED of the Teensy indicates the following events:
 
 
 ## Assembly
+
+![hardware](images/logger3-hardware.png)
 
 ![pinout](images/eodlogger-teensy3.5-pinout.png)
