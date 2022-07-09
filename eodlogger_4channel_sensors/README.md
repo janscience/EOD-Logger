@@ -1,5 +1,7 @@
 # eodlogger_4channel_sensors
 
+![logger3](images/logger3.jpg)
+
 - Records from 4 monopolar channels against a common ground, two from each ADC
 - Data are saved in wave files together with relevant metadata:
   sampling rate, number of channels and pin IDs, bit resolution,
@@ -200,4 +202,4 @@ The on-board LED of the Teensy indicates the following events:
 
 ## Assembly
 
-![pinout](eodlogger-teensy3.5-pinout.png)
+![pinout](images/eodlogger-teensy3.5-pinout.png)
