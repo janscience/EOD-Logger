@@ -11,56 +11,45 @@
 // Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-uint32_t samplingRate = 44100;  // samples per second and channel in Hertz
-int8_t channel0 = A2;           // input pin for ADC0
-int8_t channel1 = A10;          // input pin for ADC1
-int bits = 12;                  // resolution: 10bit 12bit, or 16bit
-int averaging = 4;              // number of averages per sample: 0, 4, 8, 16, 32
-ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
-ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
+#define SAMPLING_RATE 44100 // samples per second and channel in Hertz
+#define BITS             12 // resolution: 10bit 12bit, or 16bit
+#define AVERAGING         4 // number of averages per sample: 0, 4, 8, 16, 32
+#define CONVERSION    ADC_CONVERSION_SPEED::HIGH_SPEED
+#define SAMPLING      ADC_SAMPLING_SPEED::HIGH_SPEED
+#define REFERENCE     ADC_REFERENCE::REF_3V3
+#define CHANNEL0      A2    // input pin for ADC0
+#define CHANNEL1      A10   // input pin for ADC1
 
-char path[] = "recordings";     // directory where to store files on SD card.
-char fileName[] = "logger4-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-float fileSaveTime = 10*60;     // seconds
+#define PATH          "recordings" // directory where to store files on SD card.
+#define FILENAME      "logger4-SDATETIME" // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+#define FILE_SAVE_TIME 10   // seconds
+#define INITIAL_DELAY  2.0  // seconds
 
-float initialDelay = 10.0;      // seconds
-
-int pulseFrequency = 200;       // Hertz
+#define PULSE_FREQUENCY 230 // Hertz
 //int signalPins[] = {2, 3, -1};  // pins where to put out test signals
 
 
 // ----------------------------------------------------------------------------
 
-const char version[4] = "2.0";
+#define VERSION        "2.2"
  
 RTClock rtclock;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
-TeensyADC aidata(AIBuffer, NAIBuffer);
+TeensyADC aidata(AIBuffer, NAIBuffer, CHANNEL0, CHANNEL1);
 
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
 
 Configurator config;
-TeensyADCSettings aisettings;
-Settings settings("recordings", fileName, fileSaveTime, pulseFrequency,
-                  0.0, initialDelay);
+TeensyADCSettings aisettings(SAMPLING_RATE, BITS, AVERAGING,
+			     CONVERSION, SAMPLING, REFERENCE);
+Settings settings(PATH, FILENAME, FILE_SAVE_TIME, PULSE_FREQUENCY,
+                  0.0, INITIAL_DELAY);
 String prevname; // previous file name
 Blink blink(LED_BUILTIN);
 
 int restarts = 0;
-
-
-void setupADC() {
-  aidata.setChannel(0, channel0);
-  aidata.setChannel(1, channel1);
-  aidata.setRate(samplingRate);
-  aidata.setResolution(bits);
-  aidata.setAveraging(averaging);
-  aidata.setConversionSpeed(convs);
-  aidata.setSamplingSpeed(sampls);
-  aidata.check();
-}
 
 
 String makeFileName() {
@@ -114,7 +103,7 @@ void setupStorage() {
   file.setWriteInterval();
   file.setMaxFileTime(settings.FileTime);
   char ss[30] = "eodlogger_2channel_wave v";
-  strcat(ss, version);
+  strcat(ss, VERSION);
   file.setSoftware(ss);
 }
 
@@ -186,7 +175,6 @@ void setup() {
   sdcard.begin();
   rtclock.setFromFile(sdcard);
   rtclock.report();
-  setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
   //setupTestSignals(signalPins, settings.PulseFrequency);

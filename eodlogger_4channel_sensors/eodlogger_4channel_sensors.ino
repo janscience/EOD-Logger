@@ -15,43 +15,43 @@
 // Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-uint32_t samplingRate = 44100; // samples per second and channel in Hertz
+#define SAMPLING_RATE 44100 // samples per second and channel in Hertz
+#define BITS             12 // resolution: 10bit 12bit, or 16bit
+#define AVERAGING         4 // number of averages per sample: 0, 4, 8, 16, 32
+#define CONVERSION    ADC_CONVERSION_SPEED::HIGH_SPEED
+#define SAMPLING      ADC_SAMPLING_SPEED::HIGH_SPEED
+#define REFERENCE     ADC_REFERENCE::REF_3V3
 int8_t channels0[] = {A2, A3, -1};   // input pins for ADC0
 int8_t channels1[] = {A10, A11, -1}; // input pins for ADC1
-int bits = 12;                 // resolution: 10bit 12bit, or 16bit
-int averaging = 4;             // number of averages per sample: 0, 4, 8, 16, 32
-ADC_CONVERSION_SPEED convs = ADC_CONVERSION_SPEED::HIGH_SPEED;
-ADC_SAMPLING_SPEED sampls = ADC_SAMPLING_SPEED::HIGH_SPEED;
 
-uint8_t tempPin = 5;          // pin for DATA of thermometer
-float sensorsInterval = 10.0;  // interval between sensors readings in seconds
+#define TEMP_PIN         5     // pin for DATA of thermometer
+#define SENSORS_INTERVAL 10.0  // interval between sensors readings in seconds
 
-char path[] = "recordings";    // directory where to store files on SD card.
-char fileName[] = "logger3-SDATETIME"; // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-float fileSaveTime = 10*60;    // seconds
+#define PATH          "recordings" // directory where to store files on SD card.
+#define FILENAME      "logger3-SDATETIME" // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+#define INITIAL_DELAY 10.0  // seconds
 
-float initialDelay = 10.0;            // seconds
-
-int pulseFrequency = 200;      // Hertz
+#define PULSE_FREQUENCY 230 // Hertz
 //int signalPins[] = {2, 3, 4, 5, -1};  // pins where to put out test signals
 
 
 // ----------------------------------------------------------------------------
  
-const char version[4] = "1.0";
+#define VERSION "1.2"
 
 RTClock rtclock;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
-TeensyADC aidata(AIBuffer, NAIBuffer);
+TeensyADC aidata(AIBuffer, NAIBuffer, channels0, channels1);
 
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
 
 Configurator config;
-TeensyADCSettings aisettings;
-Settings settings("recordings", fileName, fileSaveTime, pulseFrequency,
-                  0.0, initialDelay);
+TeensyADCSettings aisettings(SAMPLING_RATE, BITS, AVERAGING,
+			     CONVERSION, SAMPLING, REFERENCE);
+Settings settings(PATH, FILENAME, FILE_SAVE_TIME, PULSE_FREQUENCY,
+                  0.0, INITIAL_DELAY, SENSORS_INTERVAL);
 String prevname; // previous file name
 Blink blink(LED_BUILTIN);
 
@@ -65,20 +65,8 @@ LightBH1750 light(&sensors);
 int restarts = 0;
 
 
-void setupADC() {
-  aidata.setChannels(0, channels0);
-  aidata.setChannels(1, channels1);
-  aidata.setRate(samplingRate);
-  aidata.setResolution(bits);
-  aidata.setAveraging(averaging);
-  aidata.setConversionSpeed(convs);
-  aidata.setSamplingSpeed(sampls);
-  aidata.check();
-}
-
-
 void setupSensors() {
-  temp.begin(tempPin);
+  temp.begin(TEMP_PIN);
   temp.setName("water temperature", "Tw");
   Wire1.begin();
   light.begin(Wire1);
@@ -87,7 +75,7 @@ void setupSensors() {
   //bme.beginI2C(Wire2, 0x77);
   //hum.setPercent();
   //pres.setHecto();
-  sensors.setInterval(sensorsInterval);
+  sensors.setInterval(settings.SensorsInterval);
   sensors.setPrintTime(ESensors::ISO_TIME);
   sensors.report();
   Serial.println();
@@ -149,8 +137,8 @@ void setupStorage() {
     Serial.printf("Save recorded data in folder \"%s\".\n\n", settings.Path);
   file.setWriteInterval();
   file.setMaxFileTime(settings.FileTime);
-  char ss[30] = "eodlogger_4channel_sensors v";
-  strcat(ss, version);
+  char ss[40] = "eodlogger_4channel_sensors v";
+  strcat(ss, VERSION);
   file.setSoftware(ss);
 }
 
@@ -225,7 +213,6 @@ void setup() {
   sdcard.begin();
   rtclock.setFromFile(sdcard);
   rtclock.report();
-  setupADC();
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
   //setupTestSignals(signalPins, settings.PulseFrequency);
