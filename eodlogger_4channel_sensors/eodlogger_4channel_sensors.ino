@@ -139,7 +139,7 @@ void setupStorage() {
   file.setMaxFileTime(settings.FileTime);
   char ss[40] = "eodlogger_4channel_sensors v";
   strcat(ss, VERSION);
-  file.setSoftware(ss);
+  file.header().setSoftware(ss);
 }
 
 

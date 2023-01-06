@@ -104,7 +104,7 @@ void setupStorage() {
   file.setMaxFileTime(settings.FileTime);
   char ss[30] = "eodlogger_2channel_wave v";
   strcat(ss, VERSION);
-  file.setSoftware(ss);
+  file.header().setSoftware(ss);
 }
 
 
