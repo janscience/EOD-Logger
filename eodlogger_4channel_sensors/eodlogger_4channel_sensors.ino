@@ -1,4 +1,4 @@
-#include <TeensyADC.h>
+#include <InputADC.h>
 #include <SDWriter.h>
 #include <ESensors.h>
 #include <TemperatureDS18x20.h>
@@ -9,7 +9,7 @@
 #include <TestSignals.h>
 #include <Configurator.h>
 #include <Settings.h>
-#include <TeensyADCSettings.h>
+#include <InputADCSettings.h>
 
 
 // Default settings: ----------------------------------------------------------
@@ -29,6 +29,7 @@ int8_t channels1[] = {A10, A11, -1}; // input pins for ADC1
 
 #define PATH          "recordings" // directory where to store files on SD card.
 #define FILENAME      "logger3-SDATETIME" // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
+#define FILE_SAVE_TIME 5*60 // seconds
 #define INITIAL_DELAY 10.0  // seconds
 
 #define PULSE_FREQUENCY 230 // Hertz
@@ -42,13 +43,13 @@ int8_t channels1[] = {A10, A11, -1}; // input pins for ADC1
 RTClock rtclock;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
-TeensyADC aidata(AIBuffer, NAIBuffer, channels0, channels1);
+InputADC aidata(AIBuffer, NAIBuffer, channels0, channels1);
 
 SDCard sdcard;
 SDWriter file(sdcard, aidata);
 
 Configurator config;
-TeensyADCSettings aisettings(SAMPLING_RATE, BITS, AVERAGING,
+InputADCSettings aisettings(SAMPLING_RATE, BITS, AVERAGING,
 			     CONVERSION, SAMPLING, REFERENCE);
 Settings settings(PATH, FILENAME, FILE_SAVE_TIME, PULSE_FREQUENCY,
                   0.0, INITIAL_DELAY, SENSORS_INTERVAL);
@@ -192,7 +193,7 @@ void storeData() {
       String name = makeFileName();
       if (samples == -3) {
         String sname = name + "-sensors";
-        sensors.openCSV(sdcard.sdcard(), sname.c_str());
+        sensors.openCSV(sdcard, sname.c_str());
         aidata.start();
         file.start();
       }
@@ -218,7 +219,7 @@ void setup() {
   //setupTestSignals(signalPins, settings.PulseFrequency);
   setupStorage();
   setupSensors();
-  aidata.configure(aisettings);
+  aisettings.configure(&aidata);
   aidata.check();
   aidata.start();
   aidata.report();
@@ -237,7 +238,7 @@ void setup() {
     while (1) {};
   }
   String sname = name + "-sensors";
-  sensors.openCSV(sdcard.sdcard(), sname.c_str());
+  sensors.openCSV(sdcard, sname.c_str());
   sensors.start();
   file.start();
   openNextFile(name);
