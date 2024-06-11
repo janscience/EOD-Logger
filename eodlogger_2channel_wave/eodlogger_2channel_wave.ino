@@ -11,7 +11,7 @@
 // Default settings: ----------------------------------------------------------
 // (may be overwritten by config file logger.cfg)
 
-#define SAMPLING_RATE 44100 // samples per second and channel in Hertz
+#define SAMPLING_RATE 48000 // samples per second and channel in Hertz
 #define BITS             12 // resolution: 10bit 12bit, or 16bit
 #define AVERAGING         4 // number of averages per sample: 0, 4, 8, 16, 32
 #define CONVERSION    ADC_CONVERSION_SPEED::HIGH_SPEED
@@ -22,17 +22,18 @@
 
 #define PATH          "recordings" // directory where to store files on SD card.
 #define FILENAME      "logger4-SDATETIME" // may include DATE, SDATE, TIME, STIME, DATETIME, SDATETIME, ANUM, NUM
-#define FILE_SAVE_TIME 10   // seconds
+#define FILE_SAVE_TIME 30   // seconds
 #define INITIAL_DELAY  2.0  // seconds
 
-#define PULSE_FREQUENCY 230 // Hertz
+//#define PULSE_FREQUENCY 230 // Hertz
 //int signalPins[] = {2, 3, -1};  // pins where to put out test signals
 
 
 // ----------------------------------------------------------------------------
 
-#define VERSION        "2.2"
- 
+#define SOFTWARE      "eodlogger_2channel_wave v2.3"
+
+
 RTClock rtclock;
 
 DATA_BUFFER(AIBuffer, NAIBuffer, 256*256)
@@ -42,7 +43,7 @@ SDCard sdcard;
 SDWriter file(sdcard, aidata);
 
 Configurator config;
-Settings settings(PATH, FILENAME, FILE_SAVE_TIME, PULSE_FREQUENCY,
+Settings settings(PATH, FILENAME, FILE_SAVE_TIME, 100, // PULSE_FREQUENCY,
                   0.0, INITIAL_DELAY);
 InputADCSettings aisettings(SAMPLING_RATE, BITS, AVERAGING,
 			    CONVERSION, SAMPLING, REFERENCE);
@@ -102,9 +103,7 @@ void setupStorage() {
     Serial.printf("Save recorded data in folder \"%s\".\n\n", settings.path());
   file.setWriteInterval();
   file.setMaxFileTime(settings.fileTime());
-  char ss[30] = "eodlogger_2channel_wave v";
-  strcat(ss, VERSION);
-  file.header().setSoftware(ss);
+  file.header().setSoftware(SOFTWARE);
 }
 
 
@@ -177,13 +176,13 @@ void setup() {
   rtclock.report();
   settings.disable("DisplayTime");
   settings.disable("SensorsInterval");
+  settings.disable("PulseFreq");
   config.setConfigFile("logger.cfg");
   config.configure(sdcard);
-  if (Serial)
-    config.configure(Serial);
+  //if (Serial)
+  //  config.configure(Serial);
   config.report();
   //setupTestSignals(signalPins, settings.pulseFrequency());
-  setupStorage();
   aisettings.configure(&aidata);
   aidata.check();
   aidata.start();
@@ -202,6 +201,7 @@ void setup() {
     aidata.stop();
     while (1) {};
   }
+  setupStorage();
   file.start();
   openNextFile(name);
 }
