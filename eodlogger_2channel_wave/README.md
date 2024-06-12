@@ -74,6 +74,7 @@ the current date, time or a number:
 - `SDATETIME`: "short data and time" - the current date and time as YYYYMMDDTHHMMSS
 - `ANUM`: a two character string numbering the files: 'aa', 'ab', 'ac', ..., 'ba', 'bb', ...
 - `NUM`: a two character string numbering the files: '01', '02', '03', ..., '10', '11', ...
+- `NUNM3`, `NUM4`, ...: like `NUM`, but with 3, 4, or more digets.
 
 `fileSaveTime` specifies for how many seconds data should be saved into
 each file. The default is 10min.
