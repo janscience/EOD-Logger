@@ -76,15 +76,17 @@ Weakly electric fishes emit constant or intermittent electric organ discharges t
 The purpose of this project is to design a cheap and easy-to-use recording device that can autonomously record the signals of weakly electric fish.
 
 ### Version Overview
-* eodlogger_v1: The first field-tested version of the logger. Used with direct analog input from carbon electrodes to ADC0 and ADC1. Voltage is measured in differential mode and written to the onboard buffer using DMA channels. A DS3231 RTC chip is used to keep track of the time. Every 10 minutes, the recorded data is written as .bin file onto the microSD card using the timestamp as filename.
-* eodlogger_1channel_diff_barebone: simplification of eodlogger_v1, runs without RTC chip, mostly for testing purposes.
-* eodlogger_1channel_diff_DS3231: developed version of eodlogger_v1, uses up-to-date libraries and supports exFat formatted SD cards. Reads voltage from ADC0 and ADC1 as differential input, saves data as .bin every 10, creates metadata .txt file with recording information (location, sample rate, experimenter, ...)
-* eodlogger_1channel_singleended_barebone: single-ended version of the 1channel_diff_barebone sketch, mostly for development or testing purposes.
-* eodlogger-2channel: First two channel recording sketch developed by Lydia Federman to explore simultaneous recording on both ADCs. Includes online analysis functions that are currently under development.
-* eodlogger_2channel_barebone: Simplified and updated two channel recording sketch. Reads voltage separately from two single-ended inputs into ADC0 and ADC1, saves one .bin file per ADC. Mostly for testing purposes.
-* eodlogger_2channel_DS3231: Developed version of the barebone sketch, includes timestamps from RTC and creates metadata .txt file in addition to the .bin files (analogous to eodlogger_1channel_diff_DS3231).
-* eodlogger_8channel: Latest development by Sebastian Volkmer. Uses multiplexing to read 8 inputs simultaneously (4 per ADC). Saves recordings as .wav files with encoded metadata.
+
+* [eodlogger_4channel_sensors](eodlogger_4channel_sensors/README.md): [TeeRec](https://github.com/janscience/TeeRec)-based logger, here for recordings from 4-channels directly into WAV files with additional temperature and illuminance readings.
 * [eodlogger_2channel_wave](eodlogger_2channel_wave/README.md): [TeeRec](https://github.com/janscience/TeeRec)-based logger, here for recordings from 2-channels directly into WAV files.
+* eodlogger_8channel: Latest development by Sebastian Volkmer. Uses multiplexing to read 8 inputs simultaneously (4 per ADC). Saves recordings as .wav files with encoded metadata.
+* eodlogger_2channel_DS3231: Developed version of the barebone sketch, includes timestamps from RTC and creates metadata .txt file in addition to the .bin files (analogous to eodlogger_1channel_diff_DS3231).
+* eodlogger_2channel_barebone: Simplified and updated two channel recording sketch. Reads voltage separately from two single-ended inputs into ADC0 and ADC1, saves one .bin file per ADC. Mostly for testing purposes.
+* eodlogger-2channel: First two channel recording sketch developed by Lydia Federman to explore simultaneous recording on both ADCs. Includes online analysis functions that are currently under development.
+* eodlogger_1channel_singleended_barebone: single-ended version of the 1channel_diff_barebone sketch, mostly for development or testing purposes.
+* eodlogger_1channel_diff_DS3231: developed version of eodlogger_v1, uses up-to-date libraries and supports exFat formatted SD cards. Reads voltage from ADC0 and ADC1 as differential input, saves data as .bin every 10, creates metadata .txt file with recording information (location, sample rate, experimenter, ...)
+* eodlogger_1channel_diff_barebone: simplification of eodlogger_v1, runs without RTC chip, mostly for testing purposes.
+* eodlogger_v1: The first field-tested version of the logger. Used with direct analog input from carbon electrodes to ADC0 and ADC1. Voltage is measured in differential mode and written to the onboard buffer using DMA channels. A DS3231 RTC chip is used to keep track of the time. Every 10 minutes, the recorded data is written as .bin file onto the microSD card using the timestamp as filename.
 
 ### Built With
 **Core components:**
@@ -156,6 +158,8 @@ Planned changes could include:
 
 ### Multiple channel recording
 [Jan Benda](https://bendalab.github.io/) and Lydia Federman have contributed a first sketch to record two analog channels (single-ended). Sebastian Volkmer has developed and contributed an 8-channel recording sketch!! These developments are summarized in the [TeeRec](https://github.com/janscience/TeeRec) libraries.
+
+See [TeeGrid](https://github.com/janscience/TeeGrid) for the latest development of multi-channel (8-16) EOD loggers and grids.
 
 <!-- CONTRIBUTING -->
 ## Contributing

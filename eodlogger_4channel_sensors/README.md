@@ -26,14 +26,10 @@ The logger is based on the following libraries:
 
 Both can be installed from the library manager of the Arduino IDE.
 
-*Note:* you need Arduino 1.8.19 and
- [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) 1.56 or
- higher! When [installing
- Teensyduino](https://www.pjrc.com/teensy/td_download.html) simply
- select all libraries for installation. In case you still have them
- from an older version, remove SdFat and Bounce2 from your
- Arduino/libraries folder, they are now supplied by
- [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html).
+*Note:* you need Arduino IDE 2.x.x and
+ [Teensyduino](https://www.pjrc.com/teensy/td_download.html) 1.58 or
+ higher! In case you are upgrading from older versions, remove SdFat,
+ Bounce2, and ADC from your Arduino/libraries folder.
 
 
 ## Setup
@@ -43,14 +39,16 @@ Open the `eodlogger_4channel_sensors` sketch in the Arduino IDE.
 
 ### Real-time clock
 
-If an external DS1307RTC is detected it is used as the real time clock
-instead of the on-board one.
+If an external [DS1307, DS1337 or DS3231
+  chip](https://www.pjrc.com/teensy/td_libs_DS1307RTC.html) is
+  detected it is used as the real time clock instead of the on-board
+  one. The DS1307, DS1337 or DS3231 need to be set by running, for
+  example, the `SetTime` sketch. You find it in File -> Examples ->
+  DS1307RTC -> SetTime. Open it and run it.
 
-The on-board time is set whenever you compile and upload a sketch.
-
-The DS1307RTC needs to set by running, for example, the `SetTime`
-sketch. You find it in File -> Examples -> DS1307RTC -> SetTime. Open
-it and run it.
+The [onboard real-time
+clock](https://www.pjrc.com/teensy/td_libs_Time.html) is set whenever
+you compile and upload a sketch.
 
 ### Data acquisition
 
@@ -81,6 +79,7 @@ the current date, time or a number:
 - `SDATETIME`: "short data and time" - the current date and time as YYYYMMDDTHHMMSS
 - `ANUM`: a two character string numbering the files: 'aa', 'ab', 'ac', ..., 'ba', 'bb', ...
 - `NUM`: a two character string numbering the files: '01', '02', '03', ..., '10', '11', ...
+- `NUNM3`, `NUM4`, ...: like `NUM`, but with 3, 4, or more digets.
 
 `fileSaveTime` specifies for how many seconds data should be saved into
 each file. The default is 10min.
