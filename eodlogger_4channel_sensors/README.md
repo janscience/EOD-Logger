@@ -26,10 +26,14 @@ The logger is based on the following libraries:
 
 Both can be installed from the library manager of the Arduino IDE.
 
+
 *Note:* you need Arduino IDE 2.x.x and
  [Teensyduino](https://www.pjrc.com/teensy/td_download.html) 1.58 or
- higher! In case you are upgrading from older versions, remove SdFat,
- Bounce2, and ADC from your Arduino/libraries folder.
+ higher! See the [TeeRec installation
+ instructions](https://github.com/janscience/TeeRec/blob/main/docs/install.md)
+ and the [ESensors installation
+ instructions](https://github.com/janscience/ESensors/blob/main/docs/install.md)
+ for details.
 
 
 ## Setup
